@@ -1,6 +1,14 @@
-import { logout } from '@/lib/auth/logout';
+// lib/fetchWithAuth.ts
+import { useUserStore } from '@/stores/auth/auth-store';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import { toast } from 'sonner';
 
-export async function fetchWithAuth(url: string, options: RequestInit = {}, retry = true): Promise<Response> {
+export async function fetchWithAuth(
+	url: string,
+	options: RequestInit = {},
+	retry = true,
+	router?: AppRouterInstance
+): Promise<Response> {
 	const res = await fetch(url, {
 		...options,
 		credentials: 'include',
@@ -13,9 +21,11 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}, retr
 		});
 
 		if (refreshRes.ok) {
-			return fetchWithAuth(url, options, false);
+			return fetchWithAuth(url, options, false, router);
 		} else {
-			logout();
+			useUserStore.getState().resetUser();
+			toast.error('Sesión expirada');
+			if (router) router.push('/login');
 		}
 	}
 

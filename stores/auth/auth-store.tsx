@@ -11,8 +11,6 @@ interface UserState {
 	user_id: number | null;
 	accounts: Account[];
 	loading: boolean;
-	isAuthenticated: boolean;
-	setIsAuthenticated: (state: boolean) => void;
 	setUserData: (user_id: number, accounts: Account[]) => void;
 	resetUser: () => void;
 	setLoading: (value: boolean) => void;
@@ -32,24 +30,16 @@ export const useUserStore = create<UserState>()(
 		user_id: null,
 		accounts: [],
 		loading: true,
-		isAuthenticated: false,
-		setIsAuthenticated: (state) => {
-			set({
-				isAuthenticated: state,
-			});
-		},
 		setUserData: (user_id, accounts) =>
 			set({
 				user_id,
 				accounts,
-				isAuthenticated: true,
 				loading: false,
 			}),
 		resetUser: () =>
 			set({
 				user_id: null,
 				accounts: [],
-				isAuthenticated: false,
 				loading: false,
 			}),
 		setLoading: (value) => set({ loading: value }),

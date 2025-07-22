@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import TextInput from '../text-input';
 import LoadingForm from '../loadings/auth-loading';
 import { useUserStore } from '@/stores/auth/auth-store';
+import { toast } from 'sonner';
 
 const LoginForm = () => {
 	const [isLoading, setIsLoading] = useState(false);
@@ -40,7 +41,6 @@ const LoginForm = () => {
 
 			if (!res.ok) throw new Error('Error en login');
 
-			// ⚠️ Ahora validamos la sesión llamando a /auth/me/
 			const meRes = await fetch('http://127.0.0.1:8000/auth/me/', {
 				credentials: 'include',
 			});
@@ -49,13 +49,13 @@ const LoginForm = () => {
 
 			const data = await meRes.json();
 
-			// ✅ Guardamos sesión en Zustand
 			const setUserData = useUserStore.getState().setUserData;
 			setUserData(data.user_id, data.accounts);
-
+			toast.success('Inicio de sesión exitoso');
 			router.push('/');
 		} catch (error) {
 			console.error('Error en login:', error);
+			toast.error('Error al iniciar sesión. Verifica tus credenciales.');
 			setIsLoading(false);
 		} finally {
 			resetForm();

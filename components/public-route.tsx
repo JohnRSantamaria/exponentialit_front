@@ -2,19 +2,25 @@
 
 import { useUserStore } from '@/stores/auth/auth-store';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { SessionLoader } from './loadings/loader';
 
 export function PublicRoute({ children }: { children: React.ReactNode }) {
-	const isAuthenticated = useUserStore((s) => s.isAuthenticated);
+	const user_id = useUserStore((state) => state.user_id);
+	const loading = useUserStore((state) => state.loading);
 	const router = useRouter();
-	console.log(`isAuthenticated : ${isAuthenticated}`);
+	const hasRedirected = useRef(false);
+
 	useEffect(() => {
-		if (isAuthenticated) {
+		if (!loading && user_id && !hasRedirected.current) {
+			hasRedirected.current = true;
 			router.replace('/');
 		}
-	}, [isAuthenticated, router]);
+	}, [user_id, loading, router]);
 
-	if (isAuthenticated) return null;
+	if (loading) return <SessionLoader />;
+
+	if (user_id) return null;
 
 	return <>{children}</>;
 }

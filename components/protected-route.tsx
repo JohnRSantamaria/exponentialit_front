@@ -1,22 +1,24 @@
 'use client';
+import React from 'react';
 
 import { useUserStore } from '@/stores/auth/auth-store';
-import { useAutoLoginSilent } from '@/hooks/use-auto-login-silent';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useAutoLogin } from '@/hooks/use-auto-login';
+
+import { SessionLoader } from './loadings/loader';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-	const isAuthenticated = useUserStore((s) => s.isAuthenticated);
-	const router = useRouter();
-	useAutoLoginSilent();
+	const user_id = useUserStore((state) => state.user_id);
+	const loading = useUserStore((state) => state.loading);
 
-	useEffect(() => {
-		if (!isAuthenticated) {
-			router.replace('/login');
-		}
-	}, [isAuthenticated, router]);
+	useAutoLogin();
 
-	if (!isAuthenticated) return null;
+	if (loading) {
+		return <SessionLoader />;
+	}
+
+	if (!user_id) {
+		return null;
+	}
 
 	return <>{children}</>;
 }
